@@ -12,13 +12,13 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
-import com.amdocs.media.assignement.model.UserProfile;
+import com.amdocs.media.assignement.model.UserProfileDTO;
 
 @Configuration
 public class KakfaConfiguration {
 
     @Bean
-    public ProducerFactory<String, UserProfile> producerFactory() {
+    public ProducerFactory<String, UserProfileDTO> producerFactory() {
         Map<String, Object> config = new HashMap<>();
 
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
