@@ -34,6 +34,8 @@
 
 		<button type="submit"  class="btn btn-success">login</button>
 	</form:form>
+	${error}
+	${msg}
 </div>
 </body>
 </html>

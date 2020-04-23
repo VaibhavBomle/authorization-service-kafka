@@ -1,6 +1,6 @@
 package com.amdocs.media.assignement.service;
 
-import com.amdocs.media.assignement.model.UserProfileDTO;
+import com.amdocs.media.assignement.dto.UserProfileDTO;
 
 public interface UserProfileService {
 

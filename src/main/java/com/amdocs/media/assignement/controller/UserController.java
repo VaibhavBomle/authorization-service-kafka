@@ -1,89 +1,95 @@
 package com.amdocs.media.assignement.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.amdocs.media.assignement.model.UserCredDTO;
-import com.amdocs.media.assignement.model.UserProfileDTO;
+import com.amdocs.media.assignement.dto.UserCredDTO;
+import com.amdocs.media.assignement.dto.UserProfileDTO;
+import com.amdocs.media.assignement.model.UserCred;
+import com.amdocs.media.assignement.service.UserCredService;
 import com.amdocs.media.assignement.service.UserProfileService;
 import com.amdocs.media.assignement.userprofileclient.UserProfileClient;
 
+
+/**
+ * 
+ * User Controller
+ *
+ */
 @Controller
 public class UserController {
-	
+
 	@Autowired
 	private UserProfileService userProfileService;
-	
+
+	@Autowired
+	private UserCredService userCredService;
+
 	@Autowired
 	private UserProfileClient userProfileClient;
-	
-	@InitBinder
-	public void initBinder(WebDataBinder binder) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-		binder.registerCustomEditor(Date.class, new CustomDateEditor(
-				dateFormat, false));
-	}
-	
+
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public String login(ModelMap model, @Valid UserCredDTO userCredDTO,BindingResult result) {
-		System.out.println("userCredDTO "+userCredDTO);
-		
-		// code to authenticate username and password
-		if(userCredDTO.getId() != null) {
-			return "redirect:/get-user?id="+userCredDTO.getId();
+	public String login(ModelMap model, @Valid UserCredDTO userCredDTO) {
+		UserCred userCred = userCredService.getUserCredByUserNameAndpassword(userCredDTO.getUsername(),
+				userCredDTO.getPassword());
+		if (userCred != null) {
+			if (userCred.getId() != null) {
+				return "redirect:/get-user?id=" + userCred.getId();
+			}
 		}
-		return "redirect:/get-user";
+		model.addAttribute("userCred", new UserCredDTO());
+		model.addAttribute("error", "Invalid username and password");
+		return "home";
 	}
-	
+
 	@RequestMapping(value = "/create-user", method = RequestMethod.POST)
-	public String createUser(ModelMap model, @Valid UserProfileDTO userProfileDTO ,BindingResult result) {
-		System.out.println("userProfileDTO "+userProfileDTO);
-		userProfileService.createUserProfile(userProfileDTO);
+	public String createUser(ModelMap model, @Valid UserProfileDTO userProfileDTO) {
+		UserProfileDTO userProfile = null;
+		if (userProfileDTO.getId() != null) {
+			userProfile = userProfileService.updateUserProfile(userProfileDTO);
+			model.addAttribute("userCred", new UserCredDTO());
+			model.addAttribute("msg", "Profile Successfully Updated...");
+			return "home";
+		}
+		userProfile = userProfileService.createUserProfile(userProfileDTO);
+		model.addAttribute("userProfile", userProfile);
 		return "viewPage";
 	}
-	
-	@RequestMapping(value = "/delete-user", method = RequestMethod.DELETE)
-	public String deleteUser(@RequestParam Long id) {
+
+	@RequestMapping(value = "/delete-user", method = RequestMethod.GET)
+	public String deleteUser(ModelMap model, @RequestParam Long id) {
 		userProfileService.deleteUserProfileById(id);
-		return "redirect:/get-user";
+		model.addAttribute("userCred", new UserCredDTO());
+		model.addAttribute("msg", "Profile Successfully Deleted...");
+		return "home";
 	}
-	
-	@RequestMapping(value = "/update-user", method = RequestMethod.PUT)
-	public String UpdateUser(ModelMap model,@RequestParam Long id) {
-		//get user data
-		//UserProfileDTO userProfileDTO = userProfileClient.getUserProfileByUserCredId(id, null);
-		model.addAttribute("userProfile", userProfileClient.getUserProfileByUserCredId(id, null));
-		System.out.println("update user");
-		return "userProfile";
-		
-	}
-	
-	@RequestMapping(value = "/get-user", method = RequestMethod.GET)
-	public String getUser(ModelMap model,@RequestParam(required = false)  Long id) {
-		// need to get data from db
-		UserProfileDTO userProfileDTO = new UserProfileDTO();
-		userProfileDTO.setUserCredId(id);
-		System.out.println("userProfileDTO " + userProfileDTO);
+
+	@RequestMapping(value = "/update-user", method = RequestMethod.GET)
+	public String UpdateUser(ModelMap model, @RequestParam Long id) {
+		UserProfileDTO userProfileDTO = userProfileClient.getUserProfileByUserProfileIdOrUserCredId(id, null);
 		model.addAttribute("userProfile", userProfileDTO);
-		if(id != null) {
-			return "viewPage";
-		}
 		return "userProfile";
 	}
-	
-	
+
+	@RequestMapping(value = "/get-user", method = RequestMethod.GET)
+	public String getUser(ModelMap model, @RequestParam(name = "id", required = false) Long userCredId) {
+		UserProfileDTO userProfileDTO = userProfileClient.getUserProfileByUserProfileIdOrUserCredId(null, userCredId);
+		if (userProfileDTO != null) {
+			model.addAttribute("userProfile", userProfileDTO);
+			if (userProfileDTO != null) {
+				return "viewPage";
+			}
+		}
+		UserProfileDTO userProfile = new UserProfileDTO();
+		userProfile.setUserCredId(userCredId);
+		model.addAttribute("userProfile", userProfile);
+		return "userProfile";
+	}
 
 }

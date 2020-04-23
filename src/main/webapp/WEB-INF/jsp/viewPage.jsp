@@ -5,7 +5,7 @@
 				<tr>
 					<th>Address</th>
 					<th>Phone Number</th>
-					<th>Actionr</th>
+					<th>Action</th>
 					
 				</tr>
 			</thead>
@@ -13,7 +13,7 @@
 					<tr>
 						<td>${userProfile.address}</td>
 						
-						<td>${userProfle.phoneNumber}</td>
+						<td>${userProfile.phoneNumber}</td>
 						<td><a type="button" class="btn btn-success"
 							href="./update-user?id=${userProfile.id}">Update</a></td>
 						<td><a type="button" class="btn btn-warning"

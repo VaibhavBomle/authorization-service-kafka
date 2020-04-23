@@ -19,7 +19,7 @@
  
 	<form:form method="post" modelAttribute="userProfile"  action="/create-user">
 		<form:hidden path="id" />
-		<form:hidden path="userCredId" />
+		<form:hidden path="userCredId" /> 
 		<fieldset class="form-group">
 			<form:label path="address">Address: </form:label>
 			<form:input path="address" type="text" class="form-control"
@@ -28,7 +28,7 @@
 		</fieldset>
 
 		<fieldset class="form-group">
-			<form:label path="phoneNumber">phoneNumber</form:label>
+			<form:label path="phoneNumber">Phone Number</form:label>
 			<form:input path="phoneNumber" type="text" class="form-control"
 				required="phoneNumber" />
 			<form:errors path="phoneNumber" cssClass="text-warning" />

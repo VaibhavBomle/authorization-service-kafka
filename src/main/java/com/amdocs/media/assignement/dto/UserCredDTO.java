@@ -1,4 +1,4 @@
-package com.amdocs.media.assignement.model;
+package com.amdocs.media.assignement.dto;
 
 public class UserCredDTO {
 
